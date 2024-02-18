@@ -1,0 +1,8 @@
+{
+    "[ruby]": {
+        "editor.defaultFormatter": "testdouble.vscode-standard-ruby",
+    },
+    "rubyLsp.enabledFeatures": {
+        "diagnostics": false
+    }
+}

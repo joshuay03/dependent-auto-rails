@@ -1,0 +1,5 @@
+# For available configuration options, see:
+#   https://github.com/standardrb/standard
+
+fix: true
+parallel: true

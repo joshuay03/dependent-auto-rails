@@ -2,27 +2,66 @@
 
 module ActiveRecord::Associations::Builder
   class Association
-    def self.build(model, name, scope, options, &block)
-      if model.dangerous_attribute_method?(name)
-        raise ArgumentError, "You tried to define an association named #{name} on the model #{model.name}, but " \
-                             "this will conflict with a method #{name} already defined by Active Record. " \
-                             "Please choose a different association name."
-      end
+    def self.create_reflection(model, name, scope, options, &block)
+      raise ArgumentError, "association names must be a Symbol" unless name.is_a?(Symbol)
 
-      if options[:dependent] == :auto
-        options[:dependent] = if model._destroy_callbacks.empty?
-          :destroy
-        else
-          :delete
+      validate_options(options)
+
+      extension = define_extensions(model, name, &block)
+      options[:extend] = [*options[:extend], extension] if extension
+
+      scope = build_scope(scope)
+
+      ActiveRecord::Reflection.create(macro, name, scope, dynamic_reflection_options(model, options), model)
+    end
+
+    def self.dynamic_reflection_options(model, options)
+      DynamicReflectionOptionsHash.new.merge!(
+        options,
+        {
+          model_name: model.name,
+          association_type: if self < ActiveRecord::Associations::Builder::SingularAssociation
+                              :singular
+                            elsif self < ActiveRecord::Associations::Builder::CollectionAssociation
+                              :collection
+                            else
+                              raise DependentAutoRails::Error, "Unsupported association type"
+                            end
+        }
+      )
+    end
+
+    class DynamicReflectionOptionsHash < Hash
+      def [](key)
+        return super unless key == :dependent && super(:dependent) == :auto
+        return fallback_method if defining_dependent_callbacks?
+
+        model = super(:model_name).constantize
+        return :destroy unless valid_destroy_callbacks(model).empty?
+
+        case super(:association_type)
+        when :singular then :delete
+        when :collection then :delete_all
+        else fallback_method
         end
       end
 
-      reflection = create_reflection(model, name, scope, options, &block)
-      define_accessors model, reflection
-      define_callbacks model, reflection
-      define_validations model, reflection
-      define_change_tracking_methods model, reflection
-      reflection
+      private
+
+      def fallback_method
+        :destroy
+      end
+
+      def defining_dependent_callbacks?
+        caller.any? { |line| line.include?("active_record/associations/builder/association.rb") }
+      end
+
+      def valid_destroy_callbacks(model)
+        model._destroy_callbacks.reject do |callback|
+          # ignore #handle_dependency callback
+          callback.filter.to_s.include?("active_record/associations/builder/association.rb")
+        end
+      end
     end
   end
 end

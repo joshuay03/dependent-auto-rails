@@ -3,7 +3,7 @@
 require "active_record"
 
 ActiveSupport.on_load(:active_record) do
-  require_relative "activerecord/associations/builder/association"
+  require_relative "dependent-auto-rails/activerecord/associations/builder/association"
 end
 
 module DependentAutoRails

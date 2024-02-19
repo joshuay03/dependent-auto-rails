@@ -1,4 +1,3 @@
 # frozen_string_literal: true
 
-module DependentAutoRails
-end
+require "dependent-auto-rails/activerecord/associations/builder/association"

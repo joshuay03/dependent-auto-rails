@@ -30,6 +30,7 @@ module ActiveRecord::Associations::Builder
         }
       )
     end
+    private_class_method :dynamic_reflection_options
 
     class DynamicReflectionOptionsHash < Hash
       def [](key)

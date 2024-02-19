@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dependent-auto-rails (0.1.4)
+    dependent-auto-rails (0.1.5)
       activerecord (~> 7)
 
 GEM

@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     dependent-auto-rails (0.1.0)
-      activerecord (>= 7)
+      activerecord (~> 7)
 
 GEM
   remote: https://rubygems.org/

@@ -20,6 +20,7 @@ module ActiveRecord
           return super unless key == :dependent && super(:dependent) == :auto
           return fallback_method if defining_dependent_callbacks?
 
+          # TODO: This path can be memoized
           model = super(:association_model_name).constantize
           return :destroy unless valid_destroy_callbacks(model).empty?
 

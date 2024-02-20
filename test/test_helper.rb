@@ -8,3 +8,4 @@ class Minitest::Test
 end
 
 require_relative "../lib/dependent-auto-rails"
+require_relative "../lib/dependent-auto-rails/version"

@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Joshua Young"]
   spec.email = ["djry1999@gmail.com"]
 
-  spec.summary = "Automatically and safely decides between :destroy and :delete / :delete_all for your Rails associations."
+  spec.summary = "Automatically decides between :destroy and :delete / :delete_all for your Rails associations."
   spec.homepage = "https://github.com/joshuay03/dependent-auto-rails"
   spec.license = "MIT"
   spec.required_ruby_version = Gem::Requirement.new(">= 3")

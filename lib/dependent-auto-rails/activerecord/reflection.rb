@@ -22,7 +22,7 @@ module ActiveRecord
 
           # TODO: This path can be memoized
           model = super(:association_model_name).constantize
-          return :destroy unless valid_destroy_callbacks(model).empty?
+          return :destroy unless model._destroy_callbacks.empty?
 
           case super(:association_type)
           when :singular then :delete
@@ -39,13 +39,6 @@ module ActiveRecord
 
         def defining_dependent_callbacks?
           caller.any? { |line| line.include?("active_record/associations/builder/association.rb") }
-        end
-
-        def valid_destroy_callbacks(model)
-          model._destroy_callbacks.reject do |callback|
-            # ignore #handle_dependency callback
-            callback.filter.to_s.include?("active_record/associations/builder/association.rb")
-          end
         end
       end
     end

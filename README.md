@@ -1,3 +1,6 @@
+[![Version](https://img.shields.io/gem/v/dependent-auto-rails)][badges:0-gem]
+[![Build](https://img.shields.io/github/actions/workflow/status/joshuay03/dependent-auto-rails/.github/workflows/main.yml?branch=main)][badges:1-workflow]
+
 # dependent-auto-rails
 
 This gem provides a new `dependent` option for ActiveRecord associations, `:auto`. Using this option will automatically select between `:destroy` and `:delete` / `:delete_all` during runtime based on whether or not the associated model has any destroy callbacks defined. This is useful since `dependent: :destroy` always initialises the associated records in order to execute their destroy callbacks regardless of whether or not there are any defined. This can be expensive if there are many records to destroy.
@@ -57,3 +60,6 @@ The gem is available as open source under the terms of the [MIT License](https:/
 ## Code of Conduct
 
 Everyone interacting in the Dependent::Auto::Rails project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/dependent-auto-rails/blob/main/CODE_OF_CONDUCT.md).
+
+[badges:0-gem]: https://rubygems.org/gems/dependent-auto-rails
+[badges:1-workflow]: https://github.com/joshuay03/dependent-auto-rails/blob/main/.github/workflows/main.yml

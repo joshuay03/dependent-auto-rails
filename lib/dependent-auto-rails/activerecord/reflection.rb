@@ -44,7 +44,7 @@ module ActiveRecord
         private
 
         def fallback_method
-          :destroy
+          :destroy # The safest, also common to all supported associations
         end
 
         def defining_dependent_callbacks?

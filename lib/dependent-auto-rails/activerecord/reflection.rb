@@ -18,16 +18,26 @@ module ActiveRecord
       class DynamicReflectionOptionsHash < Hash
         def [](key)
           return super unless key == :dependent && super(:dependent) == :auto
+
+          return @dependent_auto if defined?(@dependent_auto)
+          # The method returned here is only used for defining an after_commit callback
+          # for :destroy_async, so it doesn't really matter what we return here.
+          # This helps us cause we can't yet determine the correct method as
+          # the associated model might not have been evaluated.
           return fallback_method if defining_dependent_callbacks?
 
-          # TODO: This path can be memoized
-          model = super(:association_model_name).constantize
-          return :destroy unless model._destroy_callbacks.empty?
+          @dependent_auto = begin
+            model = super(:association_model_name).constantize
 
-          case super(:association_type)
-          when :singular then :delete
-          when :collection then :delete_all
-          else fallback_method
+            if model._destroy_callbacks.empty?
+              case super(:association_type)
+              when :singular then :delete
+              when :collection then :delete_all
+              else fallback_method
+              end
+            else
+              :destroy
+            end
           end
         end
 

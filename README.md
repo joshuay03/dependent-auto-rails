@@ -4,7 +4,7 @@ This gem provides a new `dependent` option for ActiveRecord associations, `:auto
 
 It is also useful since a model's associations are rarely updated, but it's business logic can change frequently. This means that if destroy callbacks are added or removed on the associated model, the `dependent` option on the parent model's association may need to be updated to reflect this. Using `dependent: :auto` will automatically select the appropriate `dependent` option based on the current state of the model.
 
-**NOTE**: The `:auto` option **ONLY** decides between `:destroy` and `:delete` / `:delete_all`. It does not support any other `dependent` options such as:
+**NOTE**: The `:auto` option **ONLY** decides between `:destroy` and `:delete` / `:delete_all`. It does not support any other `dependent` option, such as:
 - `:nullify`
 - `:destroy_async`
 - `:restrict_with_error`

@@ -20,9 +20,9 @@ module ActiveRecord
           return super unless key == :dependent && super(:dependent) == :auto
 
           return @dependent_auto if defined?(@dependent_auto)
-          # The method returned here is only used for defining an after_commit callback
-          # for :destroy_async, so it doesn't really matter what we return here.
-          # This helps us cause we can't yet determine the correct method as
+          # The method returned here is only used to define an after_commit callback
+          # for :destroy_async, so it doesn't really matter what we return.
+          # This helps us since we can't yet determine the correct method as
           # the associated model might not have been evaluated.
           return fallback_method if defining_dependent_callbacks?
 

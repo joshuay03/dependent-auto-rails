@@ -43,12 +43,12 @@ module ActiveRecord
 
         private
 
-        def fallback_method
-          :destroy # The safest, also common to all supported associations
-        end
-
         def defining_dependent_callbacks?
           caller.any? { |line| line.include?("active_record/associations/builder/association.rb") }
+        end
+
+        def fallback_method
+          :destroy # The safest, also common to all supported associations
         end
       end
     end

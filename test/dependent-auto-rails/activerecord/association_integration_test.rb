@@ -20,30 +20,55 @@ class Post < ActiveRecord::Base
   has_many :comments, dependent: :auto
 end
 
-class PostWithDependentCallbacks < ActiveRecord::Base
-  self.table_name = "posts"
+class PostWithDependentCallbacks < Post
+  has_one :comment_with_find_callback, foreign_key: :post_id, dependent: :auto
+  has_many :comments_with_find_callback, class_name: :CommentWithFindCallback, foreign_key: :post_id, dependent: :auto
 
-  has_one :comment_with_callbacks, foreign_key: :post_id, dependent: :auto
-  has_many :comments_with_callbacks, class_name: :CommentWithCallbacks, foreign_key: :post_id, dependent: :auto
+  has_one :comment_with_initialize_callback, foreign_key: :post_id, dependent: :auto
+  has_many :comments_with_initialize_callback, class_name: :CommentWithInitializeCallback, foreign_key: :post_id, dependent: :auto
+
+  has_one :comment_with_destroy_callback, foreign_key: :post_id, dependent: :auto
+  has_many :comments_with_destroy_callback, class_name: :CommentWithDestroyCallback, foreign_key: :post_id, dependent: :auto
+
+  has_one :comment_with_commit_callback, foreign_key: :post_id, dependent: :auto
+  has_many :comments_with_commit_callback, class_name: :CommentWithCommitCallback, foreign_key: :post_id, dependent: :auto
+
+  has_one :comment_with_rollback_callback, foreign_key: :post_id, dependent: :auto
+  has_many :comments_with_rollback_callback, class_name: :CommentWithRollbackCallback, foreign_key: :post_id, dependent: :auto
 end
 
 class Comment < ActiveRecord::Base
   belongs_to :post
 end
 
-class CommentWithCallbacks < Comment
-  self.table_name = "comments"
+class CommentWithFindCallback < Comment
+  belongs_to :post_with_dependent_callbacks
 
-  class_attribute :callback_run_count
+  after_find {}
+end
 
-  belongs_to :post
+class CommentWithInitializeCallback < Comment
+  belongs_to :post_with_dependent_callbacks
 
-  before_destroy :increment_callback_run_count
+  after_initialize {}
+end
 
-  private def increment_callback_run_count
-    self.class.callback_run_count ||= 0
-    self.class.callback_run_count += 1
-  end
+class CommentWithDestroyCallback < Comment
+  belongs_to :post_with_dependent_callbacks
+
+  after_destroy {}
+end
+
+class CommentWithCommitCallback < Comment
+  belongs_to :post_with_dependent_callbacks
+
+  after_destroy_commit {}
+end
+
+class CommentWithRollbackCallback < Comment
+  belongs_to :post_with_dependent_callbacks
+
+  after_rollback {}
 end
 
 # ---------- End ActiveRecord Setup ----------
@@ -52,7 +77,6 @@ class AssociationIntegrationTest < Minitest::Test
   def setup
     Post.delete_all
     Comment.delete_all
-    CommentWithCallbacks.callback_run_count = nil
   end
 
   class SingularAssociationIntegrationTest < AssociationIntegrationTest
@@ -63,7 +87,7 @@ class AssociationIntegrationTest < Minitest::Test
       assert_equal 0, Comment.count
     end
 
-    def test_dependent_auto_without_callbacks
+    def test_dependent_auto_without_callback
       association = Post.reflect_on_association(:comment)
       assert_equal :delete, association.options[:dependent]
 
@@ -73,15 +97,54 @@ class AssociationIntegrationTest < Minitest::Test
       assert_equal 0, Comment.count
     end
 
-    def test_dependent_auto_with_callbacks
-      association = PostWithDependentCallbacks.reflect_on_association(:comment_with_callbacks)
+    def test_dependent_auto_with_find_callback
+      association = PostWithDependentCallbacks.reflect_on_association(:comment_with_find_callback)
       assert_equal :destroy, association.options[:dependent]
 
-      post = PostWithDependentCallbacks.create!(comment_with_callbacks: CommentWithCallbacks.create!)
+      post = PostWithDependentCallbacks.create!(comment_with_find_callback: CommentWithFindCallback.create!)
 
       assert post.destroy
-      assert_equal 0, CommentWithCallbacks.count
-      assert_equal 1, CommentWithCallbacks.callback_run_count
+      assert_equal 0, CommentWithFindCallback.count
+    end
+
+    def test_dependent_auto_with_initialize_callback
+      association = PostWithDependentCallbacks.reflect_on_association(:comment_with_initialize_callback)
+      assert_equal :destroy, association.options[:dependent]
+
+      post = PostWithDependentCallbacks.create!(comment_with_initialize_callback: CommentWithInitializeCallback.create!)
+
+      assert post.destroy
+      assert_equal 0, CommentWithInitializeCallback.count
+    end
+
+    def test_dependent_auto_with_destroy_callback
+      association = PostWithDependentCallbacks.reflect_on_association(:comment_with_destroy_callback)
+      assert_equal :destroy, association.options[:dependent]
+
+      post = PostWithDependentCallbacks.create!(comment_with_destroy_callback: CommentWithDestroyCallback.create!)
+
+      assert post.destroy
+      assert_equal 0, CommentWithDestroyCallback.count
+    end
+
+    def test_dependent_auto_with_commit_callback
+      association = PostWithDependentCallbacks.reflect_on_association(:comment_with_commit_callback)
+      assert_equal :destroy, association.options[:dependent]
+
+      post = PostWithDependentCallbacks.create!(comment_with_commit_callback: CommentWithCommitCallback.create!)
+
+      assert post.destroy
+      assert_equal 0, CommentWithCommitCallback.count
+    end
+
+    def test_dependent_auto_with_rollback_callback
+      association = PostWithDependentCallbacks.reflect_on_association(:comment_with_rollback_callback)
+      assert_equal :destroy, association.options[:dependent]
+
+      post = PostWithDependentCallbacks.create!(comment_with_rollback_callback: CommentWithRollbackCallback.create!)
+
+      assert post.destroy
+      assert_equal 0, CommentWithRollbackCallback.count
     end
   end
 
@@ -95,7 +158,7 @@ class AssociationIntegrationTest < Minitest::Test
       assert_equal 0, Comment.count
     end
 
-    def test_dependent_auto_without_callbacks
+    def test_dependent_auto_without_callback
       association = Post.reflect_on_association(:comments)
       assert_equal :delete_all, association.options[:dependent]
 
@@ -107,17 +170,64 @@ class AssociationIntegrationTest < Minitest::Test
       assert_equal 0, Comment.count
     end
 
-    def test_dependent_auto_with_callbacks
-      association = PostWithDependentCallbacks.reflect_on_association(:comments_with_callbacks)
+    def test_dependent_auto_with_find_callback
+      association = PostWithDependentCallbacks.reflect_on_association(:comments_with_find_callback)
       assert_equal :destroy, association.options[:dependent]
 
       post = PostWithDependentCallbacks.create!
-      post.comments_with_callbacks << CommentWithCallbacks.create!
-      post.comments_with_callbacks << CommentWithCallbacks.create!
+      post.comments_with_find_callback << CommentWithFindCallback.create!
+      post.comments_with_find_callback << CommentWithFindCallback.create!
 
       assert post.destroy
-      assert_equal 0, CommentWithCallbacks.count
-      assert_equal 2, CommentWithCallbacks.callback_run_count
+      assert_equal 0, CommentWithFindCallback.count
+    end
+
+    def test_dependent_auto_with_initialize_callback
+      association = PostWithDependentCallbacks.reflect_on_association(:comments_with_initialize_callback)
+      assert_equal :destroy, association.options[:dependent]
+
+      post = PostWithDependentCallbacks.create!
+      post.comments_with_initialize_callback << CommentWithInitializeCallback.create!
+      post.comments_with_initialize_callback << CommentWithInitializeCallback.create!
+
+      assert post.destroy
+      assert_equal 0, CommentWithInitializeCallback.count
+    end
+
+    def test_dependent_auto_with_destroy_callback
+      association = PostWithDependentCallbacks.reflect_on_association(:comments_with_destroy_callback)
+      assert_equal :destroy, association.options[:dependent]
+
+      post = PostWithDependentCallbacks.create!
+      post.comments_with_destroy_callback << CommentWithDestroyCallback.create!
+      post.comments_with_destroy_callback << CommentWithDestroyCallback.create!
+
+      assert post.destroy
+      assert_equal 0, CommentWithDestroyCallback.count
+    end
+
+    def test_dependent_auto_with_commit_callback
+      association = PostWithDependentCallbacks.reflect_on_association(:comments_with_commit_callback)
+      assert_equal :destroy, association.options[:dependent]
+
+      post = PostWithDependentCallbacks.create!
+      post.comments_with_commit_callback << CommentWithCommitCallback.create!
+      post.comments_with_commit_callback << CommentWithCommitCallback.create!
+
+      assert post.destroy
+      assert_equal 0, CommentWithCommitCallback.count
+    end
+
+    def test_dependent_auto_with_rollback_callback
+      association = PostWithDependentCallbacks.reflect_on_association(:comments_with_rollback_callback)
+      assert_equal :destroy, association.options[:dependent]
+
+      post = PostWithDependentCallbacks.create!
+      post.comments_with_rollback_callback << CommentWithRollbackCallback.create!
+      post.comments_with_rollback_callback << CommentWithRollbackCallback.create!
+
+      assert post.destroy
+      assert_equal 0, CommentWithRollbackCallback.count
     end
   end
 end

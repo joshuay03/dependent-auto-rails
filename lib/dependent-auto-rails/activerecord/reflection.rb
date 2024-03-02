@@ -29,7 +29,7 @@ module ActiveRecord
           @dependent_auto = begin
             model = super(:association_model_name).constantize
 
-            if model._destroy_callbacks.empty?
+            if executable_callbacks_on_destroy_for(model).empty?
               case super(:association_type)
               when :singular then :delete
               when :collection then :delete_all
@@ -45,6 +45,14 @@ module ActiveRecord
 
         def defining_dependent_callbacks?
           caller.any? { |line| line.include?("active_record/associations/builder/association.rb") }
+        end
+
+        def executable_callbacks_on_destroy_for(model)
+          model._find_callbacks.to_a +
+            model._initialize_callbacks.to_a +
+            model._destroy_callbacks.to_a +
+            model._commit_callbacks.to_a +
+            model._rollback_callbacks.to_a
         end
 
         def fallback_method

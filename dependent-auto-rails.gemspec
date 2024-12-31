@@ -22,5 +22,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "activerecord", ">= 7"
 
-  spec.add_development_dependency "sqlite3"
+  spec.add_development_dependency "sqlite3", ">= 2.1"
 end

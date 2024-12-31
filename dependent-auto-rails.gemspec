@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Automatically decides between :destroy and :delete / :delete_all for your Rails associations."
   spec.homepage = "https://github.com/joshuay03/dependent-auto-rails"
   spec.license = "MIT"
-  spec.required_ruby_version = Gem::Requirement.new(">= 3")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.2")
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage

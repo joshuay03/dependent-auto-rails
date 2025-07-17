@@ -63,28 +63,28 @@ module ActiveRecord
 
     class BelongsToReflection < AssociationReflection
       def initialize(...)
-        super(...)
+        super
         convert_options_to_dynamic_reflection_options!
       end
     end
 
     class HasOneReflection < AssociationReflection
       def initialize(...)
-        super(...)
+        super
         convert_options_to_dynamic_reflection_options!
       end
     end
 
     class HasManyReflection < AssociationReflection
       def initialize(...)
-        super(...)
+        super
         convert_options_to_dynamic_reflection_options!
       end
     end
 
     class HasAndBelongsToManyReflection < AssociationReflection
       def initialize(...)
-        super(...)
+        super
         convert_options_to_dynamic_reflection_options!
       end
     end

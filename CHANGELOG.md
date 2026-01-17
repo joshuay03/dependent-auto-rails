@@ -1,3 +1,7 @@
+## [Unreleased]
+
+- Drop support for Rails 7.0 and 7.1
+
 ## [0.2.3] - 31/12/2024
 
 - Require Ruby 3.2 or later

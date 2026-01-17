@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.3.0] - 17/01/2026
+
 - Drop support for Rails 7.0 and 7.1
 
 ## [0.2.3] - 31/12/2024

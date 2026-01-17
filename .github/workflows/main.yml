@@ -10,16 +10,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Ruby ${{ matrix.ruby }}
+    name: Ruby ${{ matrix.ruby }}, Rails ${{ matrix.rails }}
     strategy:
+      fail-fast: false
       matrix:
         ruby:
-          - "3.2.9"
-          - "3.3.9"
-          - "3.4.7"
-          - "3.4.8"
-          - "4.0.0"
+          - "3.2"
+          - "3.3"
+          - "3.4"
+          - "4.0"
           - "head"
+        rails:
+          - "7.2"
+          - "8.0"
+          - "8.1"
+
+    env:
+      RUBY_VERSION: ${{ matrix.ruby }}
+      RAILS_VERSION: ${{ matrix.rails }}
 
     steps:
       - uses: actions/checkout@v4
